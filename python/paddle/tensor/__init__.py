@@ -461,6 +461,7 @@ from .stat import (  # noqa: F401
 )
 from .to_string import set_printoptions  # noqa: F401
 
+# from math import nan
 # this list used in math_op_patch.py for _binary_creator_
 tensor_method_func = [
     'create_parameter',

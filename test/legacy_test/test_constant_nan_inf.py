@@ -3,6 +3,8 @@ import paddle
 import unitest
 import numpy as np
 
+
+
 class TestConstantNanInf(unitest.TestCase):
 
     def TestConstantNan(self):

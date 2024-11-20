@@ -776,7 +776,7 @@ ir_guard._switch_to_pir()
 # Constants
 inf = math.inf
 nan = math.nan
-# newaxis: None = None
+newaxis: None = None
 
 __all__ = [
     'block_diag',
@@ -1213,4 +1213,5 @@ __all__ = [
     'to_dlpack',
     'nan',
     'inf',
+    'newaxis',
 ]

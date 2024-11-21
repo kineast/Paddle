@@ -774,6 +774,7 @@ ir_guard._switch_to_pir()
 
 
 # Constants
+newaxis: None = None
 inf = math.inf
 nan = math.nan
 
@@ -1210,6 +1211,7 @@ __all__ = [
     'positive',
     'from_dlpack',
     'to_dlpack',
-    'nan',
     'inf',
+    'newaxis',
+    'nan',
 ]

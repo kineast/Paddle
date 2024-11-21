@@ -776,7 +776,6 @@ ir_guard._switch_to_pir()
 # Constants
 inf = math.inf
 nan = math.nan
-newaxis: None = None
 
 __all__ = [
     'block_diag',

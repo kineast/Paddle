@@ -1212,5 +1212,4 @@ __all__ = [
     'to_dlpack',
     'nan',
     'inf',
-    'newaxis',
 ]

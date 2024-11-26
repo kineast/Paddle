@@ -564,5 +564,21 @@ class TestRollCase3TRTPattern(TensorRTBaseTest):
         self.check_trt_result()
 
 
+class TestShuffleChannelTRTPattern(TensorRTBaseTest):
+    def setUp(self):
+        self.python_api = paddle.shuffle_channel
+        self.api_args = {
+            "x": np.random.random([1, 12, 4, 4]).astype("float32"),
+            "group": 3,
+        }
+        self.program_config = {"feed_list": ["x"]}
+        self.min_shape = {"x": [1, 6, 2, 2]}
+        self.max_shape = {"x": [5, 24, 8, 8]}
+        self.opt_shape = {"x": [1, 12, 4, 4]}
+
+    def test_trt_result(self):
+        self.check_trt_result()
+
+
 if __name__ == '__main__':
     unittest.main()

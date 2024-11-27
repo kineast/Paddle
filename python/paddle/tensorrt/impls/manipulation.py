@@ -877,37 +877,24 @@ def roll_converter(network, paddle_op, inputs):
 
 @converter_registry.register("pd_op.shuffle_channel", trt_version="8.x")
 def shuffle_channel_converter(op_desc, engine, scopfe, test_mode):
-    """
-    Convert the shuffle_channel operation into TensorRT layers.
-    :param op_desc: Operator description, contains attributes like input/output and parameters.
-    :param engine: TensorRT engine instance.
-    :param scope: PaddlePaddle scope for accessing tensors.
-    :param test_mode: Boolean to indicate if it's running in test mode.
-    """
     print("Converting shuffle_channel op to TensorRT layer")
 
-    # Declare inputs
     input_name = op_desc.input("X")[0]
     output_name = op_desc.output("Out")[0]
     group = op_desc.attr("group")
     
-    # Get the input tensor
     input_tensor = engine.get_tensor(input_name)
 
-    # Ensure TensorRT version is 8.0 or above
     if trt.__version__ >= "8.0":
-        # Create shape-related tensors
         input_shape_tensor = engine.shape(input_tensor)
         batch_shape_tensor = engine.get_element_of_shape(input_shape_tensor, 0)
         channel_shape_tensor = engine.get_element_of_shape(input_shape_tensor, 1)
         group_tensor = engine.add_constant([1], group)
 
-        # Calculate new channel shape
         new_channel_shape_tensor = engine.elementwise_div(channel_shape_tensor, group_tensor)
         shape_dim2 = [2, 3]
         shape_dim2_tensor = engine.gather(input_shape_tensor, shape_dim2)
 
-        # Reshape to combine group dimensions
         reshape_tensors = [
             batch_shape_tensor,
             group_tensor,
@@ -916,15 +903,12 @@ def shuffle_channel_converter(op_desc, engine, scopfe, test_mode):
         ]
         reshape_tensor = engine.concat(reshape_tensors, axis=0)
 
-        # Add Shuffle layer and transpose
         shuffle_layer = engine.add_shuffle(input_tensor)
         shuffle_layer.set_input(1, reshape_tensor)
         shuffle_layer.second_transpose = (0, 2, 1, 3, 4)
 
-        # Reshape back to original shape
         output = shuffle_layer.get_output(0)
         output_layer = engine.add_shuffle(output)
         output_layer.set_input(1, input_shape_tensor)
 
-        # Register output
         engine.replenish_layer_and_output(output_layer, "shuffle_channel", [output_name], test_mode)

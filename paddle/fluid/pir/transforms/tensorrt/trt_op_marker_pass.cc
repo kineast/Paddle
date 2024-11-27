@@ -85,11 +85,7 @@ DEFINE_GENERAL_PATTERN(Swish, paddle::dialect::SwishOp)
 DEFINE_GENERAL_PATTERN(Log, paddle::dialect::LogOp)
 DEFINE_GENERAL_PATTERN(Floor, paddle::dialect::FloorOp)
 DEFINE_GENERAL_PATTERN(Roll, paddle::dialect::RollOp)
-<<<<<<< HEAD
-DEFINE_GENERAL_PATTERN(ShuffleChannel, paddle::dialect::ShuffleChannelOp)
-=======
 DEFINE_GENERAL_PATTERN(ThresholdedRelu, paddle::dialect::ThresholdedReluOp)
->>>>>>> 0780ed14e33e743304b8f17400af186c87f8cad1
 
 #undef DEFINE_GENERAL_PATTERN
 
@@ -2163,11 +2159,7 @@ class TrtOpMarkerPass : public pir::PatternRewritePass {
     ADD_PATTERN(Log)
     ADD_PATTERN(Floor)
     ADD_PATTERN(Roll)
-<<<<<<< HEAD
-    ADD_PATTERN(ShuffleChannel)
-=======
     ADD_PATTERN(ThresholdedRelu)
->>>>>>> 0780ed14e33e743304b8f17400af186c87f8cad1
 #if IS_TRT_VERSION_GE(8600)
     ADD_PATTERN(Layer_norm)
 #endif
@@ -2232,13 +2224,10 @@ class TrtOpMarkerPass : public pir::PatternRewritePass {
     ps.Add(std::make_unique<SoftplusOpPatten>(context));
     ps.Add(std::make_unique<EqualOpPattern>(context));
     ps.Add(std::make_unique<NotEqualOpPattern>(context));
-<<<<<<< HEAD
     ps.Add(std::make_unique<ShuffleChannelOpPattern>(context));
-=======
     ps.Add(std::make_unique<OneHotOpPattern>(context));
     ps.Add(std::make_unique<AssignValueOpPattern>(context));
     ps.Add(std::make_unique<AssignValue_OpPattern>(context));
->>>>>>> 0780ed14e33e743304b8f17400af186c87f8cad1
     return ps;
   }
 };

@@ -160,7 +160,6 @@ class ShuffleChannelOpPattern
 
   bool MatchAndRewrite(paddle::dialect::ShuffleChannelOp op,
                        pir::PatternRewriter &rewriter) const override {
-    // 检查 TensorRT 版本是否支持动态形状
 #if !IS_TRT_VERSION_GE(8000)
     if (op->HasDynamicShape()) {
       VLOG(3) << "ShuffleChannel does not support dynamic shape in TRT "
@@ -169,7 +168,6 @@ class ShuffleChannelOpPattern
     }
 #endif
 
-    // 标记为可运行
     op->set_attribute(kCanRunTrtAttr, rewriter.bool_attr(true));
     return true;
   }

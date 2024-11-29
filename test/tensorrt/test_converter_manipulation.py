@@ -569,7 +569,7 @@ class TestRollCase3TRTPattern(TensorRTBaseTest):
 
 class TestShuffleChannelTRTPattern(TensorRTBaseTest):
     def setUp(self):
-        self.python_api = paddle.shuffle_channel
+        self.python_api = paddle.nn.functional.channel_shuffle
         self.api_args = {
             "x": np.random.random([1, 12, 4, 4]).astype("float32"),
             "group": 3,

@@ -563,6 +563,21 @@ class TestRollCase3TRTPattern(TensorRTBaseTest):
     def test_trt_result(self):
         self.check_trt_result()
 
+class TestTakeAlongAxisTRTPattern(TensorRTBaseTest):
+    def setUp(self):
+        self.python_api = paddle.take_along_axis
+        self.api_args = {
+            "Input": np.random.random([3, 4, 10]).astype("float32"),  # Input tensor
+            "Index": np.random.randint(0, 4, [3, 4, 10]).astype("int64"),  # Index tensor
+            "axis": 1,  # Axis along which to take elements
+        }
+        self.program_config = {"feed_list": ["Input", "Index"]}
+        self.min_shape = {"Input": [1, 4, 10], "Index": [1, 4, 10]}
+        self.max_shape = {"Input": [5, 4, 10], "Index": [5, 4, 10]}
+        self.opt_shape = {"Input": [3, 4, 10], "Index": [3, 4, 10]}  # Optimized shape
+
+    def test_trt_result(self):
+        self.check_trt_result()
 
 if __name__ == '__main__':
     unittest.main()

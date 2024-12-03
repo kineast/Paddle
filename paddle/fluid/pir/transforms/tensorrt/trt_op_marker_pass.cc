@@ -101,7 +101,7 @@ class TakeAlongAxisOpPattern : public pir::OpRewritePattern<paddle::dialect::Tak
         return false;
       }
 #if !IS_TRT_VERSION_GE(8200)
-    VLOG(3) << "TakeAlongAxis is only supported by TensorRT versions 8.2 and above.";
+    VLOG(3) << "TakeAlongAxis is only supported by trt8.2 and above.";
     return false;
 #else
     pir::Value index_var_name = op.operand_source(1);

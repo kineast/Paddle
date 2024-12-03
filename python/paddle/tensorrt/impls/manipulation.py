@@ -908,25 +908,26 @@ def roll_converter(network, paddle_op, inputs):
 
 @converter_registry.register("pd_op.take_along_axis", trt_version="8.x")
 def take_along_axis_converter(network, paddle_op, inputs):
-    group = paddle_op.attrs().get("group", 1)  # Default value is 1
-    axis = paddle_op.attrs().get("axis", 0)  # Default axis value is 0
+    #group = paddle_op.attrs().get("group", 1)  
+    axis = paddle_op.attrs().get("axis", 0)  
     input_tensor = inputs[0]
     index_tensor = inputs[1]
 
-    if trt.__version__ >= "8.2":
-        input_dims = input_tensor.shape
-        index_dims = index_tensor.shape
+    # if trt.__version__ >= "8.2":
+    input_dims = input_tensor.shape
+        # index_dims = index_tensor.shape
         
-        if axis < 0:
-            axis += len(input_dims)
+    if axis < 0:
+        axis += len(input_dims)
+
+    #gather_mode = trt.GatherMode.GATHER_MODE_kELEMENT   
+    gather_layer = network.add_gather(input_tensor, index_tensor, axis)
         
-        gather_layer = network.add_gather(input_tensor, index_tensor, axis)
+        # gather_layer.name = "take_along_axis"
         
-        gather_layer.name = "take_along_axis"
+        # output_name = paddle_op.output("Result")[0]
         
-        output_name = paddle_op.output("Result")[0]
+    output_tensor = gather_layer.get_output(0)
+        # output_tensor.name = output_name
         
-        output_tensor = gather_layer.get_output(0)
-        output_tensor.name = output_name
-        
-        return [output_tensor]
+    return output_tensor

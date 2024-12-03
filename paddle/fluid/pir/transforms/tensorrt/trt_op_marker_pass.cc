@@ -96,16 +96,14 @@ class TakeAlongAxisOpPattern : public pir::OpRewritePattern<paddle::dialect::Tak
 
   bool MatchAndRewrite(paddle::dialect::TakeAlongAxisOp op,
                        pir::PatternRewriter &rewriter) const override {
+    if (op->HasAttribute(kCanRunTrtAttr) &&
+          op->attribute<pir::BoolAttribute>(kCanRunTrtAttr).data()) {
+        return false;
+      }
 #if !IS_TRT_VERSION_GE(8200)
     VLOG(3) << "TakeAlongAxis is only supported by TensorRT versions 8.2 and above.";
     return false;
 #else
-
-    if (op->HasAttribute(kCanRunTrtAttr) &&
-        op->attribute<pir::BoolAttribute>(kCanRunTrtAttr).data()) {
-      return false;
-    }
-
     pir::Value index_var_name = op.operand_source(1);
     auto index_var_name_type =
         index_var_name.type().dyn_cast<paddle::dialect::DenseTensorType>();

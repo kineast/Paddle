@@ -881,31 +881,29 @@ def shuffle_channel_converter(network, paddle_op, inputs):
     group = paddle_op.attrs().get("group", 0)
     input_tensor = inputs[0]
     
-    if trt.__version__ >= "8.0":
-        input_shape_tensor = network.add_shape(input_tensor).get_output(0)
-        batch_shape_tensor = network.add_slice(input_shape_tensor, [0], [1], [1]).get_output(0)
-        channel_shape_tensor = network.add_slice(input_shape_tensor, [1], [1], [1]).get_output(0)
-        
-        group_tensor = network.add_constant([1], np.array([group], dtype=np.int32)).get_output(0)
-        
-        new_channel_shape_tensor = network.add_elementwise(channel_shape_tensor, group_tensor, trt.ElementWiseOperation.DIV).get_output(0)
-        
-        shape_dim2_tensor = network.add_slice(input_shape_tensor, [2], [2], [1]).get_output(0)
-        shape_dim3_tensor = network.add_slice(input_shape_tensor, [3], [1], [1]).get_output(0)
-        
-        reshape_tensors = [batch_shape_tensor, group_tensor, new_channel_shape_tensor, shape_dim2_tensor, shape_dim3_tensor]
-        reshape_tensor = network.add_concatenation(reshape_tensors).get_output(0)
+    input_shape_tensor = network.add_shape(input_tensor).get_output(0)
+    batch_shape_tensor = network.add_slice(input_shape_tensor, [0], [1], [1]).get_output(0)
+    channel_shape_tensor = network.add_slice(input_shape_tensor, [1], [1], [1]).get_output(0)
     
-        shuffle_layer = network.add_shuffle(input_tensor)
-        shuffle_layer.second_transpose = [0, 2, 1, 3, 4]
-        shuffle_layer.set_input(1, reshape_tensor)
+    group_tensor = network.add_constant([1], np.array([group], dtype=np.int32)).get_output(0)
+    
+    new_channel_shape_tensor = network.add_elementwise(channel_shape_tensor, group_tensor, trt.ElementWiseOperation.DIV).get_output(0)
+    
+    shape_dim2_tensor = network.add_slice(input_shape_tensor, [2], [2], [1]).get_output(0)
+    shape_dim3_tensor = network.add_slice(input_shape_tensor, [3], [1], [1]).get_output(0)
+    
+    reshape_tensors = [batch_shape_tensor, group_tensor, new_channel_shape_tensor, shape_dim2_tensor, shape_dim3_tensor]
+    reshape_tensor = network.add_concatenation(reshape_tensors).get_output(0)
+
+    shuffle_layer = network.add_shuffle(input_tensor)
+    shuffle_layer.second_transpose = [0, 2, 1, 3, 4]
+    shuffle_layer.set_input(1, reshape_tensor)
+    
+    output_tensor = shuffle_layer.get_output(0)
         
-        output_tensor = shuffle_layer.get_output(0)
+    output_layer = network.add_shuffle(output_tensor)
+    output_layer.set_input(1, input_shape_tensor)
         
-        output_layer = network.add_shuffle(output_tensor)
-        output_layer.set_input(1, input_shape_tensor)
+    output_name = paddle_op.output("Out")[0]
         
-        output_name = paddle_op.output("Out")[0]
-        output_layer.get_output(0).name = output_name
-        
-        return [output_layer.get_output(0)]
+    return output_layer.get_output(0)

@@ -158,13 +158,12 @@ class ShuffleChannelOpPattern
 
   bool MatchAndRewrite(paddle::dialect::ShuffleChannelOp op,
                        pir::PatternRewriter &rewriter) const override {
-#if !IS_TRT_VERSION_GE(8000)
-    if (op->HasDynamicShape()) {
+  if (!IS_TRT_VERSION_GE(8000))
+    {
       VLOG(3) << "ShuffleChannel does not support dynamic shape in TRT "
                  "versions below 8.0.";
       return false;
     }
-#endif
 
     op->set_attribute(kCanRunTrtAttr, rewriter.bool_attr(true));
     return true;

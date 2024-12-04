@@ -913,21 +913,12 @@ def take_along_axis_converter(network, paddle_op, inputs):
     input_tensor = inputs[0]
     index_tensor = inputs[1]
 
-    # if trt.__version__ >= "8.2":
-    input_dims = input_tensor.shape
-        # index_dims = index_tensor.shape
-        
+    input_dims = input_tensor.shape    
     if axis < 0:
         axis += len(input_dims)
 
-    #gather_mode = trt.GatherMode.GATHER_MODE_kELEMENT   
     gather_layer = network.add_gather(input_tensor, index_tensor, axis)
         
-        # gather_layer.name = "take_along_axis"
-        
-        # output_name = paddle_op.output("Result")[0]
-        
     output_tensor = gather_layer.get_output(0)
-        # output_tensor.name = output_name
         
     return output_tensor

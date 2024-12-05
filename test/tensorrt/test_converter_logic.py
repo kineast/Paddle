@@ -164,7 +164,7 @@ class TestLogicalXorTRTPattern(TensorRTBaseTest):
         self.check_trt_result()
 
 
-class TestLogicalOrMarker(TensorRTBaseTest):
+class TestLogicalXorMarker(TensorRTBaseTest):
     def setUp(self):
         self.python_api = paddle.logical_xor
         self.api_args = {

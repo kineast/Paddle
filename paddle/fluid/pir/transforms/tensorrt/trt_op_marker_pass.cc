@@ -85,6 +85,7 @@ DEFINE_GENERAL_PATTERN(Floor, paddle::dialect::FloorOp)
 DEFINE_GENERAL_PATTERN(Roll, paddle::dialect::RollOp)
 DEFINE_GENERAL_PATTERN(ThresholdedRelu, paddle::dialect::ThresholdedReluOp)
 DEFINE_GENERAL_PATTERN(Flip, paddle::dialect::FlipOp)
+DEFINE_GENERAL_PATTERN(Shuffle_channel, paddle::dialect::ShuffleChannelOp)
 
 #undef DEFINE_GENERAL_PATTERN
 
@@ -146,26 +147,6 @@ class ReduceCommonOpPattern : public pir::OpRewritePattern<OpType> {
         return false;
       }
     }
-    op->set_attribute(kCanRunTrtAttr, rewriter.bool_attr(true));
-    return true;
-  }
-};
-
-class ShuffleChannelOpPattern
-    : public pir::OpRewritePattern<paddle::dialect::ShuffleChannelOp> {
- public:
-  using pir::OpRewritePattern<
-      paddle::dialect::ShuffleChannelOp>::OpRewritePattern;
-
-  bool MatchAndRewrite(paddle::dialect::ShuffleChannelOp op,
-                       pir::PatternRewriter &rewriter) const override {
-  if (!IS_TRT_VERSION_GE(8000))
-    {
-      VLOG(3) << "ShuffleChannel does not support dynamic shape in TRT "
-                 "versions below 8.0.";
-      return false;
-    }
-
     op->set_attribute(kCanRunTrtAttr, rewriter.bool_attr(true));
     return true;
   }
@@ -2211,6 +2192,7 @@ class TrtOpMarkerPass : public pir::PatternRewritePass {
     ADD_PATTERN(Roll)
     ADD_PATTERN(ThresholdedRelu)
     ADD_PATTERN(Flip)
+    ADD_PATTERN(ShuffleChannel)
 #if IS_TRT_VERSION_GE(8600)
     ADD_PATTERN(Layer_norm)
 #endif
@@ -2275,7 +2257,6 @@ class TrtOpMarkerPass : public pir::PatternRewritePass {
     ps.Add(std::make_unique<SoftplusOpPatten>(context));
     ps.Add(std::make_unique<EqualOpPattern>(context));
     ps.Add(std::make_unique<NotEqualOpPattern>(context));
-    ps.Add(std::make_unique<ShuffleChannelOpPattern>(context));
     ps.Add(std::make_unique<OneHotOpPattern>(context));
     ps.Add(std::make_unique<AssignValueOpPattern>(context));
     ps.Add(std::make_unique<AssignValue_OpPattern>(context));

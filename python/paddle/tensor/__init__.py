@@ -365,6 +365,7 @@ from .math import (  # noqa: F401
     nansum,
     neg,
     neg_,
+    negative,
     nextafter,
     outer,
     polygamma,

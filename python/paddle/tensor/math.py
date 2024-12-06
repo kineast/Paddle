@@ -5633,6 +5633,7 @@ def positive(x: Tensor) -> Tensor:
         raise TypeError("The `+` operator, on a bool tensor is not supported.")
     return x
 
+
 def negative(x: Tensor) -> Tensor:
     r"""
     Returns the input Tensor as it is. This is used in `Tensor.__neg__`, applying the
@@ -5663,6 +5664,7 @@ def negative(x: Tensor) -> Tensor:
     if x.dtype == paddle.bool:
         raise TypeError("The `-` operator, on a bool tensor is not supported.")
     return -x
+
 
 def atan2(x: Tensor, y: Tensor, name: str | None = None) -> Tensor:
     r"""

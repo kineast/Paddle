@@ -1681,7 +1681,6 @@ class StackOpPattern : public pir::OpRewritePattern<paddle::dialect::StackOp> {
   }
 };
 
-
 class WherePattern : public pir::OpRewritePattern<paddle::dialect::WhereOp> {
  public:
   using pir::OpRewritePattern<paddle::dialect::WhereOp>::OpRewritePattern;

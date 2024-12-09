@@ -1231,7 +1231,6 @@ class LessThanOpPattern
   }
 };
 
-
 template <typename OpType>
 class LogicalCommonOpPattern : public pir::OpRewritePattern<OpType> {
  public:
@@ -1254,7 +1253,8 @@ class LogicalCommonOpPattern : public pir::OpRewritePattern<OpType> {
     return true;
   }
 };
-using LogicalXorOpPattern = LogicalCommonOpPattern<paddle::dialect::LogicalXorOp>;
+using LogicalXorOpPattern =
+    LogicalCommonOpPattern<paddle::dialect::LogicalXorOp>;
 
 class MulticlassNms3OpPattern
     : public pir::OpRewritePattern<paddle::dialect::MulticlassNms3Op> {

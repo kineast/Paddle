@@ -139,6 +139,7 @@ class TestNotEqualIntTRTPattern(TensorRTBaseTest):
     def test_trt_result(self):
         self.check_trt_result()
 
+
 class TestLogicalXorTRTPattern(TensorRTBaseTest):
     def setUp(self):
         self.python_api = paddle.logical_xor

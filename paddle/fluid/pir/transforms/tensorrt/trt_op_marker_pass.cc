@@ -90,7 +90,8 @@ DEFINE_GENERAL_PATTERN(Flip, paddle::dialect::FlipOp)
 
 #undef DEFINE_GENERAL_PATTERN
 
-class TakeAlongAxisOpPattern : public pir::OpRewritePattern<paddle::dialect::TakeAlongAxisOp> {
+class TakeAlongAxisOpPattern
+    : public pir::OpRewritePattern<paddle::dialect::TakeAlongAxisOp> {
  public:
   using pir::OpRewritePattern<
       paddle::dialect::TakeAlongAxisOp>::OpRewritePattern;
@@ -98,9 +99,9 @@ class TakeAlongAxisOpPattern : public pir::OpRewritePattern<paddle::dialect::Tak
   bool MatchAndRewrite(paddle::dialect::TakeAlongAxisOp op,
                        pir::PatternRewriter &rewriter) const override {
     if (op->HasAttribute(kCanRunTrtAttr) &&
-          op->attribute<pir::BoolAttribute>(kCanRunTrtAttr).data()) {
-        return false;
-      }
+        op->attribute<pir::BoolAttribute>(kCanRunTrtAttr).data()) {
+      return false;
+    }
 #if !IS_TRT_VERSION_GE(8200)
     VLOG(3) << "TakeAlongAxis is only supported by trt8.2 and above.";
     return false;
@@ -114,16 +115,16 @@ class TakeAlongAxisOpPattern : public pir::OpRewritePattern<paddle::dialect::Tak
         x_var_name.type().dyn_cast<paddle::dialect::DenseTensorType>();
     auto x_shape = x_var_name_type.dims();
     if (x_shape.size() != index_shape.size()) {
-      VLOG(3) << "TakeAlongAxis op Index input dims size [" << index_shape.size()
-              << "] is not equal to input dims size [" << x_shape.size() << "].";
+      VLOG(3) << "TakeAlongAxis op Index input dims size ["
+              << index_shape.size() << "] is not equal to input dims size ["
+              << x_shape.size() << "].";
       return false;
     }
-#endif    
+#endif
     op->set_attribute(kCanRunTrtAttr, rewriter.bool_attr(true));
     return true;
   }
 };
-
 
 // Add ReduceCommonOpPattern base class to simplify code
 template <typename OpType>

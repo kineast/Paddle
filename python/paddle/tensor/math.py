@@ -5600,7 +5600,7 @@ def neg_(x: Tensor, name: str | None = None) -> Tensor:
     )
 
 
-def positive(x: Tensor) -> Tensor:
+def positive(x: Tensor, name: str | None = None) -> Tensor:
     r"""
     Returns the input Tensor as it is. This is used in `Tensor.__pos__`, applying the
     unary `+` operator to the tensor.
@@ -5610,6 +5610,7 @@ def positive(x: Tensor) -> Tensor:
 
     Args:
         x (Tensor): The input tensor. The tensor cannot be of type bool.
+        name (str|None, optional): Name for the operation (optional, default is None). For more information, please refer to :ref:`api_guide_Name`.
 
     Returns:
         Tensor: A tensor with the same shape and data type as the input tensor. The returned tensor
@@ -5632,9 +5633,9 @@ def positive(x: Tensor) -> Tensor:
     return x
 
 
-def negative(x: Tensor) -> Tensor:
+def negative(x: Tensor, name: str | None = None) -> Tensor:
     r"""
-    Returns the input Tensor as it is. This is used in `Tensor.__neg__`, applying the
+    Returns the negated version of the input Tensor. This is used in `Tensor.__neg__`, applying the
     unary `-` operator to the tensor.
 
     .. math::
@@ -5642,6 +5643,7 @@ def negative(x: Tensor) -> Tensor:
 
     Args:
         x (Tensor): The input tensor. The tensor cannot be of type bool.
+        name (str|None, optional): Name for the operation (optional, default is None). For more information, please refer to :ref:`api_guide_Name`.
 
     Returns:
         Tensor: A tensor with the same shape and data type as the input tensor. The returned tensor
@@ -5652,7 +5654,7 @@ def negative(x: Tensor) -> Tensor:
 
             >>> import paddle
             >>> x = paddle.to_tensor([-1, 0, 1])
-            >>> out = paddle.positive(x)
+            >>> out = paddle.negative(x)
             >>> print(out)
             Tensor(shape=[3], dtype=int64, place=Place(cpu), stop_gradient=True,
             [1,  0,  -1])

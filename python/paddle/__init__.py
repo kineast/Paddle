@@ -1011,6 +1011,7 @@ __all__ = [
     'conj',
     'neg',
     'neg_',
+    'negative',
     'lgamma',
     'lgamma_',
     'gammaincc',

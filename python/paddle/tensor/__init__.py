@@ -627,6 +627,7 @@ tensor_method_func = [
     'conj',
     'neg',
     'neg_',
+    'negative',
     'lgamma',
     'lgamma_',
     'gammaincc',

@@ -84,5 +84,97 @@ class TestCountNonzeroAPI(unittest.TestCase):
             self.assertRaises(ValueError, paddle.count_nonzero, x, axis=10)
 
 
+class TestCountNonzeroComplex64API(unittest.TestCase):
+    # test paddle.tensor.count_nonzero for complex64 type
+
+    def setUp(self):
+        self.x_shape = [2, 3, 4, 5]
+        real_part = np.random.uniform(-1, 1, self.x_shape).astype(np.float32)
+        imag_part = np.random.uniform(-1, 1, self.x_shape).astype(np.float32)
+        self.x = (real_part + 1j * imag_part).astype(np.complex64)
+        self.place = (
+            paddle.CUDAPlace(0)
+            if core.is_compiled_with_cuda()
+            else paddle.CPUPlace()
+        )
+
+    def test_api_static(self):
+        paddle.enable_static()
+        with paddle.static.program_guard(paddle.static.Program()):
+            x = paddle.static.data('X', self.x_shape, dtype='complex64')
+            out1 = paddle.count_nonzero(x)
+            out2 = paddle.tensor.count_nonzero(x)
+            out3 = paddle.tensor.math.count_nonzero(x)
+            exe = paddle.static.Executor(self.place)
+            res = exe.run(feed={'X': self.x}, fetch_list=[out1, out2, out3])
+        out_ref = np.argwhere(self.x)
+        for out in res:
+            np.testing.assert_equal(out, out_ref)
+
+    def test_api_dygraph(self):
+        paddle.disable_static(self.place)
+
+        def test_case(x):
+            x_tensor = paddle.to_tensor(x)
+            out = paddle.count_nonzero(x_tensor)
+            out_ref = np.argwhere(x)
+            np.testing.assert_equal(out.numpy(), out_ref)
+
+        test_case(self.x)
+        paddle.enable_static()
+
+    def test_errors(self):
+        paddle.enable_static()
+        with paddle.static.program_guard(paddle.static.Program()):
+            x = paddle.static.data('X', [10, 12], dtype='complex64')
+            self.assertRaises(ValueError, paddle.count_nonzero, x, axis=10)
+
+
+class TestCountNonzeroComplex128API(unittest.TestCase):
+    # test paddle.tensor.count_nonzero for complex128 type
+
+    def setUp(self):
+        self.x_shape = [2, 3, 4, 5]
+        real_part = np.random.uniform(-1, 1, self.x_shape).astype(np.float64)
+        imag_part = np.random.uniform(-1, 1, self.x_shape).astype(np.float64)
+        self.x = (real_part + 1j * imag_part).astype(np.complex128)
+        self.place = (
+            paddle.CUDAPlace(0)
+            if core.is_compiled_with_cuda()
+            else paddle.CPUPlace()
+        )
+
+    def test_api_static(self):
+        paddle.enable_static()
+        with paddle.static.program_guard(paddle.static.Program()):
+            x = paddle.static.data('X', self.x_shape, dtype='complex128')
+            out1 = paddle.count_nonzero(x)
+            out2 = paddle.tensor.count_nonzero(x)
+            out3 = paddle.tensor.math.count_nonzero(x)
+            exe = paddle.static.Executor(self.place)
+            res = exe.run(feed={'X': self.x}, fetch_list=[out1, out2, out3])
+        out_ref = np.argwhere(self.x)
+        for out in res:
+            np.testing.assert_equal(out, out_ref)
+
+    def test_api_dygraph(self):
+        paddle.disable_static(self.place)
+
+        def test_case(x):
+            x_tensor = paddle.to_tensor(x)
+            out = paddle.count_nonzero(x_tensor)
+            out_ref = np.argwhere(x)
+            np.testing.assert_equal(out.numpy(), out_ref)
+
+        test_case(self.x)
+        paddle.enable_static()
+
+    def test_errors(self):
+        paddle.enable_static()
+        with paddle.static.program_guard(paddle.static.Program()):
+            x = paddle.static.data('X', [10, 12], dtype='complex128')
+            self.assertRaises(ValueError, paddle.count_nonzero, x, axis=10)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -91,42 +91,6 @@ DEFINE_GENERAL_PATTERN(Mish, paddle::dialect::MishOp)
 
 #undef DEFINE_GENERAL_PATTERN
 
-class TakeAlongAxisOpPattern
-    : public pir::OpRewritePattern<paddle::dialect::TakeAlongAxisOp> {
- public:
-  using pir::OpRewritePattern<
-      paddle::dialect::TakeAlongAxisOp>::OpRewritePattern;
-
-  bool MatchAndRewrite(paddle::dialect::TakeAlongAxisOp op,
-                       pir::PatternRewriter &rewriter) const override {
-    if (op->HasAttribute(kCanRunTrtAttr) &&
-        op->attribute<pir::BoolAttribute>(kCanRunTrtAttr).data()) {
-      return false;
-    }
-#if !IS_TRT_VERSION_GE(8200)
-    VLOG(3) << "TakeAlongAxis is only supported by trt8.2 and above.";
-    return false;
-#else
-    pir::Value index_var_name = op.operand_source(1);
-    auto index_var_name_type =
-        index_var_name.type().dyn_cast<paddle::dialect::DenseTensorType>();
-    auto index_shape = index_var_name_type.dims();
-    pir::Value x_var_name = op.operand_source(0);
-    auto x_var_name_type =
-        x_var_name.type().dyn_cast<paddle::dialect::DenseTensorType>();
-    auto x_shape = x_var_name_type.dims();
-    if (x_shape.size() != index_shape.size()) {
-      VLOG(3) << "TakeAlongAxis op Index input dims size ["
-              << index_shape.size() << "] is not equal to input dims size ["
-              << x_shape.size() << "].";
-      return false;
-    }
-#endif
-    op->set_attribute(kCanRunTrtAttr, rewriter.bool_attr(true));
-    return true;
-  }
-};
-
 // Add ReduceCommonOpPattern base class to simplify code
 template <typename OpType>
 class ReduceCommonOpPattern : public pir::OpRewritePattern<OpType> {
@@ -2268,7 +2232,6 @@ class TrtOpMarkerPass : public pir::PatternRewritePass {
     ps.Add(std::make_unique<SetValueWithTensor_OpPattern>(context));
     ps.Add(std::make_unique<EqualOpPattern>(context));
     ps.Add(std::make_unique<NotEqualOpPattern>(context));
-    ps.Add(std::make_unique<TakeAlongAxisOpPattern>(context));
     ps.Add(std::make_unique<TanhOpPattern>(context));
     ps.Add(std::make_unique<CeluOpPattern>(context));
     ps.Add(std::make_unique<OneHotOpPattern>(context));

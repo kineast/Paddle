@@ -940,20 +940,3 @@ def roll_converter(network, paddle_op, inputs):
             )
 
     return layer.get_output(0)
-
-
-@converter_registry.register("pd_op.take_along_axis", trt_version="8.x")
-def take_along_axis_converter(network, paddle_op, inputs):
-    axis = paddle_op.attrs().get("axis", 0)
-    input_tensor = inputs[0]
-    index_tensor = inputs[1]
-
-    input_dims = input_tensor.shape
-    if axis < 0:
-        axis += len(input_dims)
-
-    gather_layer = network.add_gather(input_tensor, index_tensor, axis)
-
-    output_tensor = gather_layer.get_output(0)
-
-    return output_tensor

@@ -107,8 +107,9 @@ class TestCountNonzeroComplex64API(unittest.TestCase):
             out3 = paddle.tensor.math.count_nonzero(x)
             exe = paddle.static.Executor(self.place)
             res = exe.run(feed={'X': self.x}, fetch_list=[out1, out2, out3])
-        out_ref = np.argwhere(self.x)
+        out_ref = np.count_nonzero(self.x)
         for out in res:
+            print(f"out: {out}, out_ref: {out_ref}")
             np.testing.assert_equal(out, out_ref)
 
     def test_api_dygraph(self):
@@ -117,7 +118,7 @@ class TestCountNonzeroComplex64API(unittest.TestCase):
         def test_case(x):
             x_tensor = paddle.to_tensor(x)
             out = paddle.count_nonzero(x_tensor)
-            out_ref = np.argwhere(x)
+            out_ref = np.count_nonzero(x)
             np.testing.assert_equal(out.numpy(), out_ref)
 
         test_case(self.x)
@@ -153,7 +154,7 @@ class TestCountNonzeroComplex128API(unittest.TestCase):
             out3 = paddle.tensor.math.count_nonzero(x)
             exe = paddle.static.Executor(self.place)
             res = exe.run(feed={'X': self.x}, fetch_list=[out1, out2, out3])
-        out_ref = np.argwhere(self.x)
+        out_ref = np.count_nonzero(self.x)
         for out in res:
             np.testing.assert_equal(out, out_ref)
 
@@ -163,7 +164,7 @@ class TestCountNonzeroComplex128API(unittest.TestCase):
         def test_case(x):
             x_tensor = paddle.to_tensor(x)
             out = paddle.count_nonzero(x_tensor)
-            out_ref = np.argwhere(x)
+            out_ref = np.count_nonzero(x)
             np.testing.assert_equal(out.numpy(), out_ref)
 
         test_case(self.x)

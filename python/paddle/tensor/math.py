@@ -2030,7 +2030,7 @@ def count_nonzero(
     Counts the number of non-zero values in the tensor x along the specified axis.
 
     Args:
-        x (Tensor): An N-D Tensor, the data type is bool, float16, float32, float64, int32 or int64, complex64, complex128.
+        x (Tensor): An N-D Tensor, the data type is bool, float16, float32, float64, int32 or int64.
         axis (int|list|tuple, optional): The dimensions along which the sum is performed. If
             :attr:`None`, sum all elements of :attr:`x` and return a
             Tensor with a single element, otherwise must be in the

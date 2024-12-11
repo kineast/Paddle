@@ -3483,6 +3483,14 @@ def unique_consecutive(
             [[2, 1, 3],
              [3, 0, 1],
              [2, 1, 3]])
+
+    Deduce continuously repeating elements in Tensor and return a continuous non repeating Tensor.
+    The above figure shows the deduplication process of a one-dimensional tensor
+    The following figure shows the process of unfolding a two-dimensional tensor of [3,4] along axis=0, deduplicating it, and then folding it in two dimensions
+    .. figure:: ../../ images/api_legend/unique-consecutive.png
+    : width: 500
+    : alt:  Example 2 Diagram
+    : align: center
     """
 
     if axis is None:

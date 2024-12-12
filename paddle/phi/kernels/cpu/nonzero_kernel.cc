@@ -92,21 +92,23 @@ class NonZeroKernel {
 };
 
 // 针对 std::complex<T> 的偏特化
-template <typename T>
-class NonZeroKernel<std::complex<T>> {
+template <typename T, typename Context>
+class NonZeroKernel<phi::dtype::complex<T>> {
  public:
-  template <typename Context>
+  // template <typename Context>
   void operator()(const Context& dev_ctx,
                   const DenseTensor& condition,
                   DenseTensor* out) {
-    const std::complex<T>* cond_data = condition.data<std::complex<T>>();
+    const phi::dtype::complex<T>* cond_data =
+        condition.data<phi::dtype::complex<T>>();
     auto numel = condition.numel();
     auto dims = condition.dims();
     const int rank = dims.size();
 
     std::vector<int64_t> true_index;
     for (auto i = 0; i < numel; i++) {
-      if (std::real(cond_data[i]) != 0 || std::imag(cond_data[i]) != 0) {
+      if (phi::dtype::real(cond_data[i]) != 0 ||
+          phi::dtype::imag(cond_data[i]) != 0) {
         true_index.push_back(i);
       }
     }
@@ -131,15 +133,15 @@ class NonZeroKernel<std::complex<T>> {
     for_range(functor);
   }
 };
-template class phi::NonZeroKernel<int64_t>;
-template class phi::NonZeroKernel<int>;
-template class phi::NonZeroKernel<int16_t>;
-template class phi::NonZeroKernel<phi::dtype::bfloat16>;
-template class phi::NonZeroKernel<bool>;
-template class phi::NonZeroKernel<float>;
-template class phi::NonZeroKernel<double>;
-template class phi::NonZeroKernel<std::complex64>;
-template class phi::NonZeroKernel<std::complex128>;
+// template class phi::NonZeroKernel<int64_t>;
+// template class phi::NonZeroKernel<int>;
+// template class phi::NonZeroKernel<int16_t>;
+// template class phi::NonZeroKernel<phi::dtype::bfloat16>;
+// template class phi::NonZeroKernel<bool>;
+// template class phi::NonZeroKernel<float>;
+// template class phi::NonZeroKernel<double>;
+// template class phi::NonZeroKernel<phi::dtype::complex64>;
+// template class phi::NonZeroKernel<phi::dtype::complex128>;
 }  // namespace phi
 
 PD_REGISTER_KERNEL(nonzero,

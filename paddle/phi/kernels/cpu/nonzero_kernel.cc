@@ -51,9 +51,9 @@ struct WhereIndexFunctor {
   T* out_ptr_;
 };
 
-
 template <typename T>
-struct NonZeroKernel {
+class NonZeroKernel {
+ public:
   template <typename Context>
   void operator()(const Context& dev_ctx,
                   const DenseTensor& condition,
@@ -65,7 +65,7 @@ struct NonZeroKernel {
 
     std::vector<int64_t> true_index;
     for (auto i = 0; i < numel; i++) {
-      if (static_cast<bool>(cond_data[i])) {  
+      if (static_cast<bool>(cond_data[i])) {
         true_index.push_back(i);
       }
     }
@@ -93,7 +93,8 @@ struct NonZeroKernel {
 
 // 针对 std::complex<T> 的偏特化
 template <typename T>
-struct NonZeroKernel<std::complex<T>> {
+class NonZeroKernel<std::complex<T>> {
+ public:
   template <typename Context>
   void operator()(const Context& dev_ctx,
                   const DenseTensor& condition,
@@ -105,7 +106,7 @@ struct NonZeroKernel<std::complex<T>> {
 
     std::vector<int64_t> true_index;
     for (auto i = 0; i < numel; i++) {
-      if (std::real(cond_data[i]) != 0 || std::imag(cond_data[i]) != 0) {  
+      if (std::real(cond_data[i]) != 0 || std::imag(cond_data[i]) != 0) {
         true_index.push_back(i);
       }
     }
@@ -130,16 +131,15 @@ struct NonZeroKernel<std::complex<T>> {
     for_range(functor);
   }
 };
-template struct phi::NonZeroKernel<int64_t>;
-template struct phi::NonZeroKernel<int>;
-template struct phi::NonZeroKernel<int16_t>;
-template struct phi::NonZeroKernel<phi::dtype::bfloat16>;
-template struct phi::NonZeroKernel<bool>;
-template struct phi::NonZeroKernel<float>;
-template struct phi::NonZeroKernel<double>;
-template struct phi::NonZeroKernel<std::complex64>;
-template struct phi::NonZeroKernel<std::complex128>;
-
+template class phi::NonZeroKernel<int64_t>;
+template class phi::NonZeroKernel<int>;
+template class phi::NonZeroKernel<int16_t>;
+template class phi::NonZeroKernel<phi::dtype::bfloat16>;
+template class phi::NonZeroKernel<bool>;
+template class phi::NonZeroKernel<float>;
+template class phi::NonZeroKernel<double>;
+template class phi::NonZeroKernel<std::complex64>;
+template class phi::NonZeroKernel<std::complex128>;
 }  // namespace phi
 
 PD_REGISTER_KERNEL(nonzero,

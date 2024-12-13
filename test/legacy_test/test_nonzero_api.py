@@ -181,5 +181,243 @@ class TestNonzeroBF16(OpTest):
         return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
 
 
+class TestNonzeroComplex64Op(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [5, 5]
+
+    def init_dtype(self):
+        self.dtype = np.complex64
+
+    def create_inputs(self):
+        real = np.random.random(self.shape).astype(np.float32)
+        imag = np.random.random(self.shape).astype(np.float32)
+        condition = real + 1j * imag
+        condition[condition.real < 0.5] = 0 + 0j
+        return {'Condition': condition}
+
+    def return_outputs(self):
+        nonzero_indices = np.transpose(np.nonzero(self.inputs['Condition']))
+        return {'Out': nonzero_indices}
+
+
+class TestNonzeroComplex128Op(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 6]
+
+    def init_dtype(self):
+        self.dtype = np.complex128
+
+    def create_inputs(self):
+        real = np.random.random(self.shape).astype(np.float64)
+        imag = np.random.random(self.shape).astype(np.float64)
+        condition = real + 1j * imag
+        condition[condition.imag < 0.3] = 0 + 0j
+        return {'Condition': condition}
+
+    def return_outputs(self):
+        nonzero_indices = np.transpose(np.nonzero(self.inputs['Condition']))
+        return {'Out': nonzero_indices}
+
+
+class TestNonzeroComplex64ZeroReal(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 4]
+
+    def init_dtype(self):
+        self.dtype = np.complex64
+
+    def create_inputs(self):
+        real_part = np.zeros(self.shape, dtype=np.float32)
+        imag_part = np.random.random(self.shape).astype(np.float32)
+        return {'Condition': real_part + 1j * imag_part}
+
+    def return_outputs(self):
+        return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
+
+
+class TestNonzeroComplex64ZeroImag(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 4]
+
+    def init_dtype(self):
+        self.dtype = np.complex64
+
+    def create_inputs(self):
+        real_part = np.random.random(self.shape).astype(np.float32)
+        imag_part = np.zeros(self.shape, dtype=np.float32)
+        return {'Condition': real_part + 1j * imag_part}
+
+    def return_outputs(self):
+        return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
+
+
+class TestNonzeroComplex64AllZero(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 4]
+
+    def init_dtype(self):
+        self.dtype = np.complex64
+
+    def create_inputs(self):
+        real_part = np.zeros(self.shape, dtype=np.float32)
+        imag_part = np.zeros(self.shape, dtype=np.float32)
+        return {'Condition': real_part + 1j * imag_part}
+
+    def return_outputs(self):
+        return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
+
+
+class TestNonzeroComplex128ZeroReal(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 4]
+
+    def init_dtype(self):
+        self.dtype = np.complex128
+
+    def create_inputs(self):
+        real_part = np.zeros(self.shape, dtype=np.float64)
+        imag_part = np.random.random(self.shape).astype(np.float64)
+        return {'Condition': real_part + 1j * imag_part}
+
+    def return_outputs(self):
+        return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
+
+
+class TestNonzeroComplex128ZeroImag(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 4]
+
+    def init_dtype(self):
+        self.dtype = np.complex128
+
+    def create_inputs(self):
+        real_part = np.random.random(self.shape).astype(np.float64)
+        imag_part = np.zeros(self.shape, dtype=np.float64)
+        return {'Condition': real_part + 1j * imag_part}
+
+    def return_outputs(self):
+        return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
+
+
+class TestNonzeroComplex128AllZero(OpTest):
+    def setUp(self):
+        np.random.seed(2023)
+        self.op_type = "where_index"
+        self.python_api = call_nonzero
+        self.init_shape()
+        self.init_dtype()
+
+        self.inputs = self.create_inputs()
+        self.outputs = self.return_outputs()
+
+    def test_check_output(self):
+        self.check_output(check_pir=True, check_symbol_infer=False)
+
+    def init_shape(self):
+        self.shape = [4, 4]
+
+    def init_dtype(self):
+        self.dtype = np.complex128
+
+    def create_inputs(self):
+        real_part = np.zeros(self.shape, dtype=np.float64)
+        imag_part = np.zeros(self.shape, dtype=np.float64)
+        return {'Condition': real_part + 1j * imag_part}
+
+    def return_outputs(self):
+        return {'Out': np.transpose(np.nonzero(self.inputs['Condition']))}
+
+
 if __name__ == "__main__":
     unittest.main()

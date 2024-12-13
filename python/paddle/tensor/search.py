@@ -542,6 +542,8 @@ def nonzero(x: Tensor, as_tuple=False):
                 'float32',
                 'float64',
                 'bool',
+                'complex64',
+                'complex128',
             ],
             'where_index',
         )

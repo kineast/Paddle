@@ -14,10 +14,15 @@
 
 #include "paddle/phi/kernels/nonzero_kernel.h"
 
+#include <type_traits>
+#include "paddle/phi/common/complex.h"
 #include "paddle/phi/core/dense_tensor.h"
 #include "paddle/phi/core/kernel_registry.h"
 #include "paddle/phi/kernels/funcs/for_range.h"
 #include "paddle/phi/kernels/funcs/math_function.h"
+
+using complex64 = ::phi::dtype::complex<float>;
+using complex128 = ::phi::dtype::complex<double>;
 
 namespace phi {
 
@@ -47,38 +52,89 @@ struct WhereIndexFunctor {
 };
 
 template <typename T, typename Context>
+struct RawNonZeroKernel {
+  void operator()(const Context& dev_ctx,
+                  const DenseTensor& condition,
+                  DenseTensor* out) {
+    const T* cond_data = condition.data<T>();
+    auto numel = condition.numel();
+    auto dims = condition.dims();
+    const int rank = dims.size();
+
+    std::vector<int64_t> true_index;
+    for (auto i = 0; i < numel; i++) {
+      if (static_cast<bool>(cond_data[i])) {
+        true_index.push_back(i);
+      }
+    }
+
+    auto true_num = true_index.size();
+    out->Resize(common::make_ddim({static_cast<int64_t>(true_num), rank}));
+    auto* out_ptr = dev_ctx.template Alloc<int64_t>(out);
+
+    if (true_num == 0) {
+      return;
+    }
+
+    std::vector<int64_t> stride(rank);
+    stride[rank - 1] = 1;
+    for (int i = rank - 2; i >= 0; i--) {
+      stride[i] = stride[i + 1] * dims[i + 1];
+    }
+
+    WhereIndexFunctor<int64_t> functor(
+        true_index.data(), true_num, stride.data(), rank, out_ptr);
+    phi::funcs::ForRange<phi::CPUContext> for_range(dev_ctx, true_num);
+    for_range(functor);
+  }
+};
+
+// RawKernel 的偏特化处理 std::complex<T>
+template <typename T, typename Context>
+struct RawNonZeroKernel<phi::dtype::complex<T>, Context> {
+  void operator()(const Context& dev_ctx,
+                  const DenseTensor& condition,
+                  DenseTensor* out) {
+    const phi::dtype::complex<T>* cond_data =
+        condition.data<phi::dtype::complex<T>>();
+    auto numel = condition.numel();
+    auto dims = condition.dims();
+    const int rank = dims.size();
+
+    std::vector<int64_t> true_index;
+    for (auto i = 0; i < numel; i++) {
+      if (cond_data[i].real != 0 || cond_data[i].imag != 0) {
+        true_index.push_back(i);
+      }
+    }
+
+    auto true_num = true_index.size();
+    out->Resize(common::make_ddim({static_cast<int64_t>(true_num), rank}));
+    auto* out_ptr = dev_ctx.template Alloc<int64_t>(out);
+
+    if (true_num == 0) {
+      return;
+    }
+
+    std::vector<int64_t> stride(rank);
+    stride[rank - 1] = 1;
+    for (int i = rank - 2; i >= 0; i--) {
+      stride[i] = stride[i + 1] * dims[i + 1];
+    }
+
+    WhereIndexFunctor<int64_t> functor(
+        true_index.data(), true_num, stride.data(), rank, out_ptr);
+    phi::funcs::ForRange<phi::CPUContext> for_range(dev_ctx, true_num);
+    for_range(functor);
+  }
+};
+
+// 顶层 Kernel 调用 RawKernel
+template <typename T, typename Context>
 void NonZeroKernel(const Context& dev_ctx,
                    const DenseTensor& condition,
                    DenseTensor* out) {
-  const T* cond_data = condition.data<T>();
-  auto numel = condition.numel();
-  auto dims = condition.dims();
-  const int rank = dims.size();
-
-  std::vector<int64_t> true_index;
-  for (auto i = 0; i < numel; i++) {
-    if (static_cast<bool>(cond_data[i])) {
-      true_index.push_back(i);
-    }
-  }
-  auto true_num = true_index.size();
-  out->Resize(common::make_ddim({static_cast<int64_t>(true_num), rank}));
-  auto* out_ptr = dev_ctx.template Alloc<int64_t>(out);
-
-  if (true_num == 0) {
-    return;
-  }
-
-  std::vector<int64_t> stride(rank);
-  stride[rank - 1] = 1;
-  for (int i = rank - 2; i >= 0; i--) {
-    stride[i] = stride[i + 1] * dims[i + 1];
-  }
-
-  WhereIndexFunctor<int64_t> functor(
-      true_index.data(), true_num, stride.data(), rank, out_ptr);
-  phi::funcs::ForRange<phi::CPUContext> for_range(dev_ctx, true_num);
-  for_range(functor);
+  RawNonZeroKernel<T, Context>()(dev_ctx, condition, out);
 }
 
 }  // namespace phi
@@ -93,6 +149,8 @@ PD_REGISTER_KERNEL(nonzero,
                    phi::dtype::bfloat16,
                    bool,
                    float,
-                   double) {
+                   double,
+                   complex64,
+                   complex128) {
   kernel->OutputAt(0).SetDataType(phi::DataType::INT64);
 }

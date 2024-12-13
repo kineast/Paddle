@@ -20,7 +20,9 @@
 namespace cub = hipcub;
 #endif
 
+#include <type_traits>
 #include "paddle/common/ddim.h"
+#include "paddle/phi/common/complex.h"
 #include "paddle/phi/core/dense_tensor.h"
 #include "paddle/phi/core/kernel_registry.h"
 #include "paddle/phi/kernels/funcs/math_function.h"
@@ -74,6 +76,9 @@ void NonZeroKernel(const Context &dev_ctx,
 }
 }  // namespace phi
 
+using complex64 = ::phi::dtype::complex<float>;
+using complex128 = ::phi::dtype::complex<double>;
+
 PD_REGISTER_KERNEL(nonzero,
                    GPU,
                    ALL_LAYOUT,
@@ -85,6 +90,8 @@ PD_REGISTER_KERNEL(nonzero,
                    phi::dtype::bfloat16,
                    bool,
                    float,
-                   double) {
+                   double,
+                   complex64,
+                   complex128) {
   kernel->OutputAt(0).SetDataType(phi::DataType::INT64);
 }

@@ -44,15 +44,37 @@ struct IndexFunctor {
     }
   }
 
-  HOSTDEVICE inline void operator()(OutT *out,
-                                    const MaskT *mask,
-                                    const IndexT *index,
-                                    const int num) {
+  template <typename T>
+  HOSTDEVICE inline
+      typename std::enable_if<!phi::dtype::is_complex<T>::value>::type
+      operator()(OutT *out,
+                 const MaskT *mask,
+                 const IndexT *index,
+                 const int num) {
     int store_fix = 0;
     for (int idx = 0; idx < num; idx++) {
       if (mask[idx]) {
         IndexT data_index = index[idx];
-        // get index
+        // Compute multi-dimensional index
+        for (int rank_id = rank - 1; rank_id >= 0; --rank_id) {
+          out[store_fix] = static_cast<OutT>(data_index / strides[rank_id]);
+          data_index = data_index % strides[rank_id];
+          store_fix++;
+        }
+      }
+    }
+  }
+
+  // For complex types
+  template <typename T>
+  HOSTDEVICE inline
+      typename std::enable_if<phi::dtype::is_complex<T>::value>::type
+      operator()(OutT *out, const T *data, const IndexT *index, const int num) {
+    int store_fix = 0;
+    for (int idx = 0; idx < num; idx++) {
+      if (data[idx].real != 0 || data[idx].imag != 0) {
+        IndexT data_index = index[idx];
+        // Compute multi-dimensional index
         for (int rank_id = rank - 1; rank_id >= 0; --rank_id) {
           out[store_fix] = static_cast<OutT>(data_index / strides[rank_id]);
           data_index = data_index % strides[rank_id];
@@ -71,8 +93,15 @@ void NonZeroKernel(const Context &dev_ctx,
   auto dims = condition.dims();
   using Functor = IndexFunctor<T, int64_t, int64_t>;
   Functor index_functor = Functor(dims);
-  phi::funcs::SelectKernel<T, T, int64_t, 0, Functor>(
-      dev_ctx, condition, in_data, out, index_functor);
+
+  if constexpr (phi::dtype::is_complex<T>::value) {
+    phi::funcs::SelectKernel<T, T, int64_t, 0, Functor>(
+        dev_ctx, condition, in_data, out, index_functor);
+  } else {
+    // Standard scalar handling
+    phi::funcs::SelectKernel<T, T, int64_t, 0, Functor>(
+        dev_ctx, condition, in_data, out, index_functor);
+  }
 }
 }  // namespace phi
 
